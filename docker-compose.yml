@@ -1,0 +1,40 @@
+# PokéBot Gen3 — headless server deployment.
+#
+#   1. Copy .env.example to .env and edit it.
+#   2. Put your ROM in ./roms/ and set POKEBOT_ROM to its file name.
+#   3. docker compose up -d --build
+#
+# The web dashboard is published on 127.0.0.1 by default (see POKEBOT_BIND).
+# The bot has NO authentication — do not bind it to a public interface. Reach it
+# over Tailscale/SSH tunnel/reverse proxy instead. See DEPLOY.md.
+services:
+  pokebot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pokebot-gen3:local
+    container_name: pokebot-gen3
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Defaults here apply if the variable is absent from .env.
+      POKEBOT_PROFILE: ${POKEBOT_PROFILE:-default}
+      POKEBOT_ROM: ${POKEBOT_ROM:-}
+      POKEBOT_BOT_MODE: ${POKEBOT_BOT_MODE:-Manual}
+      POKEBOT_WEB_PORT: ${POKEBOT_WEB_PORT:-8888}
+      POKEBOT_ENABLE_WEB: ${POKEBOT_ENABLE_WEB:-1}
+      POKEBOT_AUDIO: ${POKEBOT_AUDIO:-0}
+      POKEBOT_NO_VIDEO: ${POKEBOT_NO_VIDEO:-0}
+      POKEBOT_EXTRA_ARGS: ${POKEBOT_EXTRA_ARGS:-}
+    ports:
+      # host_bind:host_port:container_port
+      # POKEBOT_BIND defaults to 127.0.0.1 (loopback only). Set it to your
+      # Tailscale IP (e.g. 100.x.y.z) to reach the UI over your tailnet.
+      - "${POKEBOT_BIND:-127.0.0.1}:${POKEBOT_WEB_PORT:-8888}:${POKEBOT_WEB_PORT:-8888}"
+    volumes:
+      # All persistent state (saves, save states, stats.db, screenshots,
+      # per-profile config) lives inside the profile directory.
+      - ./profiles:/app/profiles
+      - ./roms:/app/roms
+    stop_grace_period: 30s

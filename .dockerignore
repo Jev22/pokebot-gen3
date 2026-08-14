@@ -1,0 +1,28 @@
+# Keep the build context small and reproducible.
+.git
+.github
+.idea
+.vs
+.vscode
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+
+# User data / runtime state — provided via volumes at runtime, never baked in.
+profiles/*
+!profiles/.gitkeep
+roms/*
+!roms/.gitkeep
+stats/
+logs/
+stream/
+dist/
+build/
+
+# The mGBA binding is downloaded fresh during the build.
+mgba/
+
+# Bot bookkeeping files (regenerated in the image).
+.last-requirements-check
+.last-update-check
