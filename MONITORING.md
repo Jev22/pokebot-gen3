@@ -104,6 +104,43 @@ Returnerer en liste af **faser** (op til de seneste ~10), ikke enkelt-Pokémon. 
   `species_shiny_encounters` på det tidspunkt.
 - `shiny_encounter`: selve shiny-fangsten (`encounter_id`, tid, `matching_custom_catch_filters` …).
 
+## Fangst-recap med IV'er (to fangst-kategorier)
+
+Botten fanger **to slags** Pokémon: **shinies** (★) og **4× perfekte IV'er** (fire stats på 31).
+Rapporten skal give en **recap med per-stat IV'er på alle fangster**, fremhæve de nævneværdigt
+gode, og vurdere hvordan IV-spreadet passer til team-brug.
+
+**Sådan læses IV'er ud af en `.pk3`-fil (fund):**
+- De gemte `.pk3` er i **dekrypteret standard-format** (fra `Pokemon.to_pk3()`), IKKE det interne
+  krypterede layout. Derfor kan `modules.pokemon.parse_pokemon()` **ikke** parse dem direkte
+  (checksum-tjek fejler → returnerer `None`).
+- IV'erne ligger som en uint32 i Misc-substrukturen på **byte 72** (little-endian). Bit-felter:
+  `HP 0-4, Atk 5-9, Def 10-14, Spe 15-19, SpA 20-24, SpD 25-29` (bit 30 = egg, 31 = ability).
+- Valideret: IV-summen matcher `[..]`-tallet i filnavnet for alle 135 fangster.
+
+**Værktøj:** `python3 iv_recap.py` (i repo-roden) gør dette automatisk og udskriver per fangst:
+6 IV'er, antal 31'ere, nature (+ hvilken stat den hæver/sænker), og en heuristisk vurdering.
+```bash
+python3 iv_recap.py                       # alle fangster, tabel
+python3 iv_recap.py --min-perfect 5       # kun nævneværdige (5-6×31)
+python3 iv_recap.py --species Seedot      # filtrér på art
+python3 iv_recap.py --json                # maskinlæsbart (til rapport-logikken)
+```
+
+**Team-egnethed — sådan vurderes en fangst:**
+- Tæl 31'ere. **6×31** = 🌟 flawless, **5×31** = ⭐.
+- **Nature betyder alt:** en nature sænker én stat 10%. En imperfekt IV i den *sænkede* stat er
+  "gratis" (skader ikke en typisk build) → en 4×31 kan reelt være **effektivt 5×31**.
+- **Dump-stat-reglen:** en fysisk angriber/væg bruger ikke Sp. Atk (og en special-mon bruger ikke
+  Atk). Er fejlen i den ubrugte stat, betyder den intet for den rolle. Nævn det i recap'en:
+  "perfekt i alle relevante stats for rollen".
+- Fremhæv i rapporten kun de virkelig gode (≥5×31, eller 4×31 hvor begge fejl er i dump/sænket
+  stat) med en kort linje om hvilken stat der er svag, og om det matter for et realistisk team.
+
+**Rapport-tilføjelse:** ved en ny fangst medtages linjen
+`IVs: HP/Atk/Def/SpA/SpD/Spe (N×31, nature ±) — <team-note hvis nævneværdig>`.
+Ved periodisk recap: kør `iv_recap.py` og opsummer nye fangster siden sidste baseline.
+
 ## .pk3-filer = den fysiske fangst-optælling
 
 Gemte Pokémon ligger i `profiles/Server/pokemon/*.pk3`. Navneformat:
@@ -138,10 +175,12 @@ løbende "bot lever"-rapporter under en shiny-jagt, med detektion af nye fangste
 ```
 ✨ New catch!
 <Art> ★ — <Natur> — IV sum <N> — dupe|new
+IVs: HP<h>/Atk<a>/Def<d>/SpA<sa>/SpD<sd>/Spe<sp> (<N>×31, nature +<up>/−<down>)<team-note hvis nævneværdig>
 Running tally: <S> shinies + <IV> IV-catches (<total> total .pk3). Bot alive — <lokation>,
 state=<STATE>, +<delta> encounters since last check (~<rate>/hr).
 Still missing: <liste>.
 ```
+(Kategori: ★ = shiny-fangst; ellers 4×31 IV-fangst. Kør `iv_recap.py --json` for tallene.)
 
 **Ingen ændring:**
 ```
