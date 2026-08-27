@@ -137,6 +137,15 @@ python3 iv_recap.py --json                # maskinlæsbart (til rapport-logikken
 - Fremhæv i rapporten kun de virkelig gode (≥5×31, eller 4×31 hvor begge fejl er i dump/sænket
   stat) med en kort linje om hvilken stat der er svag, og om det matter for et realistisk team.
 
+**Rapportér ALLE fangede shinies — men gruppér:**
+- Alle shiny-fangster skal med i recap'en, men gruppér efter art når der er flere, fx
+  `7× Poochyena ★, 3× Wurmple ★, 1× Ralts ★`. Ingen grund til én linje pr. dupe-shiny.
+- **Fremhæv en shiny særskilt kun hvis den er ≥3×31** (eller tydeligt rolle-korrekt, fx en
+  defensiv Def/SpD-shiny til en væg) — så med fuld IV-linje og team-note. Ellers tælles den bare
+  med i grupperingen.
+- **IV-fangster (4×31, ikke-shiny)** får altid fuld IV-linje + team-note (det er hele pointen med
+  dem).
+
 **Rapport-tilføjelse:** ved en ny fangst medtages linjen
 `IVs: HP/Atk/Def/SpA/SpD/Spe (N×31, nature ±) — <team-note hvis nævneværdig>`.
 Ved periodisk recap: kør `iv_recap.py` og opsummer nye fangster siden sidste baseline.

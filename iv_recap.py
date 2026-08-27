@@ -77,7 +77,8 @@ def quality_tag(a):
 def main():
     args = sys.argv[1:]
     as_json = "--json" in args
-    args = [a for a in args if a != "--json"]
+    group_mode = "--group" in args
+    args = [a for a in args if a not in ("--json", "--group")]
     min_perfect = 0
     species_filter = None
     positional = []
@@ -99,6 +100,19 @@ def main():
 
     if as_json:
         print(json.dumps(rows, ensure_ascii=False, indent=2))
+        return
+
+    if group_mode:
+        from collections import Counter
+        shiny = Counter(r["species"] for r in rows if r["shiny"])
+        ivonly = Counter(r["species"] for r in rows if not r["shiny"])
+        notable = [r for r in rows if r["shiny"] and r["perfect_count"] >= 3]
+        print("Shinies (grupperet):", ", ".join(f"{n}× {s} ★" for s, n in shiny.most_common()) or "ingen")
+        print("IV-fangster (4×31): ", ", ".join(f"{n}× {s}" for s, n in ivonly.most_common()) or "ingen")
+        print(f"Nævneværdige shinies (≥3×31): {len(notable)}")
+        for r in notable:
+            iv = r["ivs"]
+            print(f"  {r['species']} ★ {r['nature']}: " + "/".join(str(iv[s]) for s in STATS) + f" ({r['perfect_count']}×31)")
         return
 
     shiny_n = sum(r["shiny"] for r in rows)
