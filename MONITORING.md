@@ -124,6 +124,43 @@ echo "pk3 total: $total | shiny: $shiny | IV-fangster: $((total-shiny))"
 
 Andre profil-mapper: `profiles/Server/{saves,states,screenshots/{gifs,cards}}`.
 
+## Rapporteringsformat (heartbeat-rutine)
+
+Rekonstrueret fra den oprindelige session (var aldrig committet — gik tabt én gang). Formål:
+løbende "bot lever"-rapporter under en shiny-jagt, med detektion af nye fangster.
+
+**Ved hver check:**
+1. Læs `/emulator` (bot_mode!), `/game_state`, `/stats` (totals), tæl `.pk3` (shiny vs IV).
+2. Sammenlign mod `catch_baseline.json`; opdater baseline bagefter.
+3. Tjek `/items` for **Rare Candy** — nævn kun en linje hvis den er i tasken (ellers "no line").
+
+**Ny fangst:**
+```
+✨ New catch!
+<Art> ★ — <Natur> — IV sum <N> — dupe|new
+Running tally: <S> shinies + <IV> IV-catches (<total> total .pk3). Bot alive — <lokation>,
+state=<STATE>, +<delta> encounters since last check (~<rate>/hr).
+Still missing: <liste>.
+```
+
+**Ingen ændring:**
+```
+✅ Bot still running — no new catches. <total_enc> encounters (+<delta> since last check),
+~<rate>/hr, on <lokation>, state=<STATE>. Still <S> shinies + <IV> IV-catches (<total> .pk3).
+Still missing: <liste>.
+```
+
+**Kadence & regler:**
+- Rapportér ved nye fangster og ellers periodisk (loggen brugte ~hver ~2.400 encounters / løbende).
+- **Overnatnings-pause:** ingen heartbeats om natten; genoptag kl. 09:00 (og tidligere kun ved
+  en ny fangst værd at flage).
+- `state=UNKNOWN` = forbigående læsning → stol på encounter-delta.
+- **Encounters står stille i Manual** → så er der intet at rapportere (jagten er sat på pause).
+
+**Nuværende mål (2026-08-27):** find **1 shiny Seedot til** (står på 1/2) før vi går videre.
+Route 102, Pokémon Emerald. Ralts-linjen er komplet (3/3). Tidligere også nævnt manglende:
+Goldeen (Old Rod).
+
 ## Baseline til overvågning
 
 `catch_baseline.json` (repo-roden) holder sidste kendte tal, så nye fangster kan detekteres
