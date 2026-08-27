@@ -24,8 +24,8 @@
 <div id="first_row">
     <div id="video_container">
         <audio id="gba_audio" autoplay="true"></audio>
-        <video id="gba_video" autoplay="true" playsinline="true"></video>
-        <div id="gba_video_placeholder" onclick="startVideo()">Start Video</div>
+        <img id="gba_video" src="/stream_video?fps=30" alt="Emulator">
+        
     </div>
 
     <div id="emulator_card">
@@ -51,6 +51,7 @@
                     id="video_enabled_label"></strong></label></li>
             <li><label>Audio Enabled: <input type="checkbox" id="audio_enabled"> <strong
                     id="audio_enabled_label"></strong></label></li>
+            <li>Controls: <strong>Arrows</strong>=D-Pad &middot; <strong>X</strong>=A &middot; <strong>Z</strong>=B &middot; <strong>A</strong>=L &middot; <strong>S</strong>=R &middot; <strong>Space</strong>=Start &middot; <strong>Backspace</strong>=Select <em>(Manual mode only)</em></li>
             <li>Buttons Pressed: <strong id="buttons_pressed" class="none">none</strong></li>
             <li>Message: <strong id="message"></strong></li>
         </ul>
@@ -927,7 +928,7 @@
         image-rendering: crisp-edges;
         width: 100%;
         aspect-ratio: 1.5;
-        display: none;
+        display: block;
     }
 
     #gba_video_placeholder {
@@ -1104,6 +1105,156 @@
         background-color: rgba(255, 120, 120, 0.75);
     }
 </style>
+
+<!-- ===== Pickup counter widget (self-contained; added by Claude) ===== -->
+<style>
+    #pickup-widget {
+        position: fixed;
+        right: 14px;
+        bottom: 14px;
+        z-index: 9999;
+        min-width: 176px;
+        padding: 10px 12px;
+        font-family: system-ui, sans-serif;
+        color: #f4f4f4;
+        background: rgba(24, 24, 28, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        user-select: none;
+    }
+    #pickup-widget.pw-stale { outline: 1px solid #ff9d6b; }
+    #pickup-widget .pw-block + .pw-block {
+        margin-top: 9px;
+        padding-top: 9px;
+        border-top: 1px solid rgba(255, 255, 255, 0.10);
+    }
+    #pickup-widget .pw-title {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        margin-bottom: 5px;
+        cursor: pointer;
+        opacity: 0.9;
+    }
+    #pickup-widget .pw-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 14px;
+        line-height: 1.45;
+    }
+    #pickup-widget .pw-row span { font-size: 12px; opacity: 0.7; }
+    #pickup-widget .pw-row strong { font-size: 19px; font-weight: 700; }
+    #pickup-widget .pw-sub span { font-size: 11px; opacity: 0.5; }
+    #pickup-widget .pw-dim { opacity: 0.4; }
+</style>
+<div id="pickup-widget" title="Double-click an item's title to re-zero its per-hour rate"></div>
+<script>
+(function () {
+    const POLL_MS = 15000;                 // refresh every 15s
+    const ITEMS = [                        // add more { name, icon } to track others
+        { name: "Rare Candy", icon: "🍬" },  // 🍬
+        { name: "Nugget",     icon: "🥇" },  // 🥇
+    ];
+    const LS = (name) => "pw_baseline_" + name;   // { t: epoch_ms, count: farmed_at_baseline }
+    const root = document.getElementById("pickup-widget");
+    const els = {};
+
+    function makeRow(label, kind) {
+        const r = document.createElement("div");
+        r.className = "pw-row" + (kind === "sub" ? " pw-sub" : "");
+        const l = document.createElement("span"); l.textContent = label;
+        const v = document.createElement(kind === "sub" ? "span" : "strong"); v.textContent = "–";
+        r.append(l, v);
+        return { row: r, val: v };
+    }
+
+    for (const it of ITEMS) {
+        const block = document.createElement("div"); block.className = "pw-block";
+        const title = document.createElement("div"); title.className = "pw-title";
+        title.textContent = it.icon + " " + it.name;
+        title.addEventListener("dblclick", () => rezero(it.name));
+        const bag = makeRow("In bag", "strong");
+        const rate = makeRow("Per hour", "strong");
+        const farmed = makeRow("farmed (lifetime)", "sub");
+        block.append(title, bag.row, rate.row, farmed.row);
+        root.append(block);
+        els[it.name] = { bag: bag.val, rate: rate.val, farmed: farmed.val };
+    }
+
+    function readBase(name) {
+        try { return JSON.parse(localStorage.getItem(LS(name))); } catch (e) { return null; }
+    }
+    function writeBase(name, b) { localStorage.setItem(LS(name), JSON.stringify(b)); }
+
+    function sumBag(bag, name) {
+        const items = (bag && bag.items) || [];   // stacks can split — sum them all
+        return items.filter((x) => x.item === name).reduce((a, x) => a + (x.quantity || 0), 0);
+    }
+
+    function rezero(name) {
+        fetch("/stats").then((r) => r.json()).then((s) => {
+            const f = (s.pickup_items && s.pickup_items[name]) || 0;
+            writeBase(name, { t: Date.now(), count: f });
+            els[name].rate.textContent = "…";
+        });
+    }
+
+    async function tick() {
+        let stats, items, state;
+        try {
+            [stats, items, state] = await Promise.all([
+                fetch("/stats").then((r) => r.json()),
+                fetch("/items").then((r) => r.json()),
+                fetch("/game_state").then((r) => r.json()),
+            ]);
+        } catch (e) {
+            root.classList.add("pw-stale");   // keep last values, mark stale
+            return;
+        }
+        root.classList.remove("pw-stale");
+
+        // The /items bag memory read is ONLY valid in the overworld. During a
+        // battle/menu it returns huge, fluctuating garbage (e.g. 53424), so only
+        // refresh "In bag" when in the overworld AND the value is sane. Pickup
+        // only changes the bag in the overworld anyway, so nothing is missed.
+        const bagValid = (state === "OVERWORLD");
+
+        const now = Date.now();
+        for (const it of ITEMS) {
+            const name = it.name;
+            const farmed = (stats.pickup_items && stats.pickup_items[name]) || 0;   // /stats always reliable
+            els[name].farmed.textContent = farmed;
+
+            if (bagValid) {
+                const inBag = sumBag(items.bag, name);
+                if (inBag >= 0 && inBag < 10000) {                 // clamp obvious garbage reads
+                    els[name].bag.textContent = inBag;
+                    els[name].bag.classList.remove("pw-dim");
+                }
+            } else {
+                els[name].bag.classList.add("pw-dim");             // hold last good value, dimmed
+            }
+
+            // Per-hour rate from the MONOTONIC farmed counter (usage-proof),
+            // averaged since a per-item baseline persisted in localStorage.
+            let base = readBase(name);
+            if (!base || typeof base.count !== "number" || farmed < base.count) {
+                base = { t: now, count: farmed };   // first load, or counter reset -> re-baseline
+                writeBase(name, base);
+            }
+            const hours = (now - base.t) / 3600000;
+            const gained = farmed - base.count;
+            els[name].rate.textContent = (gained > 0 && hours > 0.02) ? (gained / hours).toFixed(1) : "…";
+        }
+    }
+
+    tick();
+    setInterval(tick, POLL_MS);
+})();
+</script>
+<!-- ===== end Pickup counter widget ===== -->
 </body>
 
 </html>

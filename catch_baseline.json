@@ -1,0 +1,11 @@
+{
+  "as_of": "2026-08-27",
+  "total_encounters": 999046,
+  "shiny_encounters": 122,
+  "catches": 134,
+  "pk3_total": 135,
+  "pk3_shiny": 122,
+  "pk3_iv": 13,
+  "bot_mode": "Manual",
+  "note": "genopbygget efter tabt session; catch_baseline.json var forsvundet"
+}

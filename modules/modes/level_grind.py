@@ -23,7 +23,7 @@ from ..sprites import get_sprite
 class LevelGrindMode(BotMode):
     @staticmethod
     def name() -> str:
-        return "Level Grind"
+        return "Level Grind (group)"
 
     @staticmethod
     def is_selectable() -> bool:
@@ -101,13 +101,6 @@ class LevelGrindMode(BotMode):
         raise BotModeError("No valid Pokémon found in the party.")
 
     def _ask_for_leveling_mode(self, party_lead_pokemon):
-        return ask_for_choice(
-            [
-                Selection(
-                    f"Level only first one\nin party ({party_lead_pokemon.species_name_for_stats})",
-                    get_sprite(party_lead_pokemon),
-                ),
-                Selection("Level-balance all\nparty Pokémon", get_sprites_path() / "items" / "Rare Candy.png"),
-            ],
-            "What to level?",
-        )
+        # Headless container: no GUI, no stdin. Hardcode Level-balance strategy.
+        return "Level-balance"
+

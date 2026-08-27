@@ -179,13 +179,20 @@ class RockSmashMode(BotMode):
             assert_player_has_poke_balls()
 
         if get_player_avatar().map_group_and_number == MapRSE.GRANITE_CAVE_B2F and get_item_bag().number_of_repels > 0:
-            mode = ask_for_choice(
-                [
-                    Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
-                    Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
-                ],
-                window_title="Use Repel?",
-            )
+            if context.gui.is_headless:
+                # Headless container: there is no GUI/stdin for the interactive "Use Repel?"
+                # prompt (it would raise `EOFError: EOF when reading a line`). Default to the
+                # no-Repel path, which just rock-smashes normally without the extra save-state
+                # requirements of the Repel trick.
+                mode = "No Repel"
+            else:
+                mode = ask_for_choice(
+                    [
+                        Selection("Use Repel", get_sprites_path() / "items" / "Repel.png"),
+                        Selection("No Repel", get_sprites_path() / "other" / "No Repel.png"),
+                    ],
+                    window_title="Use Repel?",
+                )
 
             if mode == "Use Repel":
                 assert_save_game_exists("There is no saved game. Cannot soft reset.")

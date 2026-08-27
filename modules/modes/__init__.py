@@ -68,6 +68,15 @@ def get_bot_modes() -> list[Type[BotMode]]:
         for mode in plugin_get_additional_bot_modes():
             _bot_modes.append(mode)
 
+        # Keep Level Grind variants adjacent in the dropdown.
+        group_idx = next((i for i, m in enumerate(_bot_modes) if m.name() == "Level Grind (group)"), None)
+        solo_idx = next((i for i, m in enumerate(_bot_modes) if m.name() == "Level Grind (solo)"), None)
+        if group_idx is not None and solo_idx is not None and solo_idx != group_idx + 1:
+            solo = _bot_modes.pop(solo_idx)
+            if solo_idx < group_idx:
+                group_idx -= 1
+            _bot_modes.insert(group_idx + 1, solo)
+
     return _bot_modes
 
 

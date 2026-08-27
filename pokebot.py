@@ -34,6 +34,26 @@ def on_exit() -> None:
 
 atexit.register(on_exit)
 
+# --- Container-friendly graceful shutdown ---
+# The upstream code only installs a shutdown handler on Windows (via win32api).
+# In a headless Linux container, SIGTERM from Podman/systemd would kill Python
+# without calling emulator.shutdown() — so current_state.ss1 is never refreshed
+# and boot always overlays a stale snapshot. Install a POSIX signal handler
+# that mirrors the Windows behaviour.
+if OS_NAME != "Windows":
+    import signal as _signal
+    def _posix_signal_handler(_signum, _frame):
+        try:
+            from modules.context import context as _ctx
+            if _ctx.emulator is not None:
+                _ctx.emulator.shutdown()
+        finally:
+            import sys as _sys
+            _sys.exit(0)
+    _signal.signal(_signal.SIGTERM, _posix_signal_handler)
+    _signal.signal(_signal.SIGINT, _posix_signal_handler)
+
+
 
 @dataclass
 class StartupSettings:
