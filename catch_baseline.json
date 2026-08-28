@@ -1,12 +1,12 @@
 {
   "as_of": "2026-08-28",
-  "total_encounters": 1062785,
+  "total_encounters": 1066987,
   "shiny_encounters": 131,
-  "catches": 143,
-  "pk3_total": 144,
+  "catches": 144,
+  "pk3_total": 145,
   "pk3_shiny": 131,
-  "pk3_iv": 13,
+  "pk3_iv": 14,
   "bot_mode": "Spin",
   "seedot_shiny": 1,
-  "note": "time-heartbeat 13:00 dansk (ingen nye fangster)"
+  "note": "time-heartbeat 14:00 dansk (ny IV-fangst Poochyena)"
 }
