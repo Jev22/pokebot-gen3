@@ -1,11 +1,12 @@
 {
-  "as_of": "2026-08-27",
-  "total_encounters": 999046,
-  "shiny_encounters": 122,
-  "catches": 134,
-  "pk3_total": 135,
-  "pk3_shiny": 122,
+  "as_of": "2026-08-28",
+  "total_encounters": 1043121,
+  "shiny_encounters": 126,
+  "catches": 138,
+  "pk3_total": 139,
+  "pk3_shiny": 126,
   "pk3_iv": 13,
-  "bot_mode": "Manual",
-  "note": "genopbygget efter tabt session; catch_baseline.json var forsvundet"
+  "bot_mode": "Spin",
+  "seedot_shiny": 1,
+  "note": "morgen-heartbeat 09:00 dansk; jagt i gang"
 }
