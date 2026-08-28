@@ -1,12 +1,12 @@
 {
   "as_of": "2026-08-28",
-  "total_encounters": 1048203,
-  "shiny_encounters": 127,
-  "catches": 139,
-  "pk3_total": 140,
-  "pk3_shiny": 127,
+  "total_encounters": 1053297,
+  "shiny_encounters": 129,
+  "catches": 141,
+  "pk3_total": 142,
+  "pk3_shiny": 129,
   "pk3_iv": 13,
   "bot_mode": "Spin",
   "seedot_shiny": 1,
-  "note": "time-heartbeat 10:00 dansk"
+  "note": "time-heartbeat 11:00 dansk"
 }
