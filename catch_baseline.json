@@ -1,12 +1,12 @@
 {
   "as_of": "2026-08-29",
-  "total_encounters": 1189950,
-  "shiny_encounters": 151,
-  "catches": 165,
-  "pk3_total": 166,
-  "pk3_shiny": 151,
+  "total_encounters": 1194921,
+  "shiny_encounters": 155,
+  "catches": 169,
+  "pk3_total": 170,
+  "pk3_shiny": 155,
   "pk3_iv": 15,
   "bot_mode": "Spin",
   "seedot_shiny": 1,
-  "note": "time-heartbeat 18:00 dansk (NY art: Oddish shiny)"
+  "note": "time-heartbeat 19:00 dansk (3x Oddish, 1x Poochyena)"
 }
