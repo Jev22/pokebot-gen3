@@ -1,12 +1,12 @@
 {
-  "as_of": "2026-08-28",
-  "total_encounters": 1099124,
-  "shiny_encounters": 137,
-  "catches": 150,
-  "pk3_total": 151,
-  "pk3_shiny": 137,
-  "pk3_iv": 14,
+  "as_of": "2026-08-29",
+  "total_encounters": 1152435,
+  "shiny_encounters": 145,
+  "catches": 159,
+  "pk3_total": 160,
+  "pk3_shiny": 145,
+  "pk3_iv": 15,
   "bot_mode": "Spin",
   "seedot_shiny": 1,
-  "note": "time-heartbeat 21:00 dansk (sidste f\u00f8r nat-stilhed)"
+  "note": "tidlig rapport 08:16 dansk"
 }
