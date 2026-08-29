@@ -1,12 +1,12 @@
 {
   "as_of": "2026-08-29",
-  "total_encounters": 1172663,
-  "shiny_encounters": 148,
-  "catches": 162,
-  "pk3_total": 163,
-  "pk3_shiny": 148,
+  "total_encounters": 1175062,
+  "shiny_encounters": 149,
+  "catches": 163,
+  "pk3_total": 164,
+  "pk3_shiny": 149,
   "pk3_iv": 15,
-  "bot_mode": "Spin",
+  "bot_mode": "Level Grind (solo)",
   "seedot_shiny": 1,
-  "note": "time-heartbeat 13:00 dansk"
+  "note": "time-heartbeat 14:00 dansk (mode skiftet til Level Grind)"
 }
