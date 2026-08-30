@@ -1,12 +1,12 @@
 {
-  "as_of": "2026-08-29",
-  "total_encounters": 1204726,
-  "shiny_encounters": 156,
-  "catches": 170,
-  "pk3_total": 171,
-  "pk3_shiny": 156,
-  "pk3_iv": 15,
+  "as_of": "2026-08-30",
+  "total_encounters": 1261614,
+  "shiny_encounters": 161,
+  "catches": 177,
+  "pk3_total": 178,
+  "pk3_shiny": 161,
+  "pk3_iv": 17,
   "bot_mode": "Spin",
   "seedot_shiny": 1,
-  "note": "time-heartbeat 21:00 dansk (sidste f\u00f8r nat)"
+  "note": "morgen-heartbeat 09:00 dansk (+5 shiny, +2 IV overnight; ny art Illumise)"
 }
